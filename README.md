@@ -1,5 +1,5 @@
-# 🕌 Dhikr Reflection Journal
-
+#  Dhikr Reflection Journal
+قَالَ لَا تَخَافَا ۖ إِنَّنِي مَعَكُمَا أَسْمَعُ وَأَرَىٰ
 A simple Python program that helps you reflect on daily dhikr (remembrance of Allah).  
 Each time you run the program, it shows a random dhikr phrase with its meaning, and you can either write a reflection or view your past reflections.
 
@@ -20,7 +20,7 @@ Dhikr Reflection Journal/
 
 ---
 
-## ▶️ How to Run
+##  How to Run
 1. Clone or download the project.
 2. Run the program:
    ```bash
@@ -47,24 +47,24 @@ Reflection saved successfully!
 
 
 
-## 📌 Project Roadmap: Dhikr Reflection Journal
+##  Project Roadmap: Dhikr Reflection Journal
 
 This project is under active development. Here are the planned milestones:
 
-### ✅ Completed
+###  Completed
 - Basic program structure (`main.py` + `utils.py`)
 - Random Dhikr phrase generator
 - Save reflections to `reflections.txt`
 - View past reflections
 
-### 🚀 Next Steps
+###  Next Steps
 - Add reset function to clear reflections
 - Save date/time with each reflection
 - Search reflections by keyword
 - Export reflections to CSV/JSON
 - Improve error handling (default option if no input given)
 
-### 🌟 Future Enhancements
+###  Future Enhancements
 - GUI version (Tkinter or PyQt)
 - Web app version (Flask/Django)
 - Mobile app integration
