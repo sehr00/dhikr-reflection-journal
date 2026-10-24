@@ -1,28 +1,30 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Your Reflections</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+{% extends "base.html" %}
+{% block content %}
+<h1>Past Reflections</h1>
 
-</head>
-<body>
-    <h1>Past Reflections</h1>
-    {% if reflections %}
-        <ul>
-        {% for line in reflections %}
-            <li>{{ line }}</li>
-        {% endfor %}
-        </ul>
-    {% else %}
-        <p>No reflections saved yet.</p>
-    {% endif %}
-    <br>
-    <a href="/">Back to Home</a>
-</body>
-</html>
+<!-- 🔍 Search bar -->
+<form action="/reflections" method="GET">
+    <input type="text" name="q" placeholder="Search reflections...">
+    <button type="submit">Search</button>
+</form>
+
+<!-- 📜 Reflection list -->
+{% if reflections %}
+    <ul>
+    {% for line in reflections %}
+        <li>{{ line }}</li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No reflections saved yet.</p>
+{% endif %}
+
+<!-- 🔄 Reset button -->
 <form action="/reset" method="POST">
     <button type="submit">Reset All Reflections</button>
 </form>
 
 <br>
 <a href="/">Back to Home</a>
+{% endblock %}
+
