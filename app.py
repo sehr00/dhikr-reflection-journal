@@ -24,11 +24,11 @@ def reflections():
         lines = []
     return render_template("reflections.html", reflections=lines)
 
-if __name__ == "__main__":
-    app.run(debug=True)
 @app.route("/reset", methods=["POST"])
 def reset():
     utils.reset_reflections()
     return redirect("/reflections")
+
+# ✅ Only one run block at the very end
 if __name__ == "__main__":
     app.run(debug=True)
