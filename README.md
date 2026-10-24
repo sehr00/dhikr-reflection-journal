@@ -44,3 +44,28 @@ Meaning: There is no power nor strength except with Allah
 Do you want to (1) write a reflection or (2) view past reflections? 1
 Write your reflection: This reminds me to rely only on Allah.
 Reflection saved successfully!
+
+
+
+## 📌 Project Roadmap: Dhikr Reflection Journal
+
+This project is under active development. Here are the planned milestones:
+
+### ✅ Completed
+- Basic program structure (`main.py` + `utils.py`)
+- Random Dhikr phrase generator
+- Save reflections to `reflections.txt`
+- View past reflections
+
+### 🚀 Next Steps
+- Add reset function to clear reflections
+- Save date/time with each reflection
+- Search reflections by keyword
+- Export reflections to CSV/JSON
+- Improve error handling (default option if no input given)
+
+### 🌟 Future Enhancements
+- GUI version (Tkinter or PyQt)
+- Web app version (Flask/Django)
+- Mobile app integration
+- Cloud sync with GitHub or Google Drive
