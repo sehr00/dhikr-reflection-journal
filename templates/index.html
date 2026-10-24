@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dhikr Reflection Journal</title>
+</head>
+<body>
+    <h1>{{ dhikr.phrase }}</h1>
+    <p>{{ dhikr.meaning }}</p>
+
+    <form action="/reflect" method="POST">
+        <input type="hidden" name="phrase" value="{{ dhikr.phrase }}">
+        <textarea name="reflection" placeholder="Write your reflection here"></textarea>
+        <br>
+        <button type="submit">Save Reflection</button>
+    </form>
+
+    <br>
+    <a href="/reflections">View Past Reflections</a>
+</body>
+</html>
