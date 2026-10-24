@@ -1,5 +1,7 @@
 #  Dhikr Reflection Journal
-قَالَ لَا تَخَافَا ۖ إِنَّنِي مَعَكُمَا أَسْمَعُ وَأَرَىٰ
+قَالَ لَا تَخَافَا ۖ إِنَّنِي مَعَكُمَا أَسْمَعُ وَأَرَىٰ  
+
+
 A simple Python program that helps you reflect on daily dhikr (remembrance of Allah).  
 Each time you run the program, it shows a random dhikr phrase with its meaning, and you can either write a reflection or view your past reflections.
 
