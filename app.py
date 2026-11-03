@@ -17,12 +17,24 @@ def reflect():
 
 @app.route("/reflections")
 def reflections():
+    query = request.args.get("q", "")
+
     try:
         with open("reflections.txt", "r", encoding="utf-8") as f:
             lines = f.readlines()
     except FileNotFoundError:
         lines = []
-    return render_template("reflections.html", reflections=lines)
+
+    if query:
+        lines = [
+            line for line in lines
+            if query.lower() in line.lower()
+        ]
+
+    return render_template(
+        "reflections.html",
+        reflections=lines
+    )
 
 @app.route("/reset", methods=["POST"])
 def reset():
