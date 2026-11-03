@@ -10,9 +10,17 @@ def home():
 
 @app.route("/reflect", methods=["POST"])
 def reflect():
+
     phrase = request.form["phrase"]
+    category = request.form["category"]
     reflection = request.form["reflection"]
-    utils.save_reflection(phrase, reflection)
+
+    utils.save_reflection(
+        phrase,
+        category,
+        reflection
+    )
+
     return redirect("/reflections")
 
 @app.route("/reflections")

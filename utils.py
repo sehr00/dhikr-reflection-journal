@@ -92,15 +92,21 @@ def get_random_dhikr():
     """Return a random dhikr phrase and its meaning."""
     return random.choice(dhikr_phrases)
 
-def save_reflection(phrase, reflection, filename="reflections.txt"):
-    """Save reflection with timestamp, only if reflection is not empty."""
-    reflection = reflection.strip()
-    if not reflection:  # ✅ validation: skip empty reflections
-        return
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    with open(filename, "a", encoding="utf-8") as f:
-        f.write(f"{phrase} ({timestamp}): {reflection}\n")
+def save_reflection(phrase, category, reflection, filename="reflections.txt"):
+    """Save reflection with category and timestamp."""
 
+    reflection = reflection.strip()
+
+    if not reflection:
+        return
+
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    with open(filename, "a", encoding="utf-8") as f:
+        f.write(
+            f"{timestamp} | {category} | {phrase}: {reflection}\n"
+        )
+        
 def reset_reflections(filename="reflections.txt"):
     """Clear all reflections safely without deleting the file."""
     with open(filename, "w", encoding="utf-8") as f:
