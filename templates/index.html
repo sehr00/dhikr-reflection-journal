@@ -1,45 +1,513 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Dhikr Reflection Journal</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dhikr Reflection Journal — The Divine Sanctuary</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@300;400;500;600;700&family=Amiri:wght@400;700&display=swap');
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+    .font-serif-title { font-family: 'Cinzel', serif; }
+    .font-arabic { font-family: 'Amiri', serif; }
+    
+    .nav-pill-active {
+      background-color: #52B788 !important;
+      color: #ffffff !important;
+      box-shadow: 0 2px 4px rgba(82, 183, 136, 0.2);
+    }
+    .nav-pill-inactive {
+      background-color: #e2e8f0;
+      color: #64748b;
+    }
+    .nav-pill-inactive:hover {
+      background-color: #cbd5e1;
+      color: #334155;
+    }
+    .badge-quran { background-color: #D8F3DC; color: #2D6A4F; }
+    .badge-hadith { background-color: #E2E8F0; color: #334155; }
+    .badge-dhikr { background-color: #FEF3C7; color: #92400E; }
+  </style>
 </head>
-<body>
-    <h1>{{ dhikr.phrase }}</h1>
-<p>{{ dhikr.meaning }}</p>
+<body class="min-h-screen flex flex-col justify-between">
 
-<form action="/reflect" method="POST">
+  <!-- AUTHENTICATION OVERLAY -->
+  <div id="authOverlay" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4">
+    <div class="bg-white w-full max-w-md rounded-2xl p-8 shadow-2xl border border-slate-200">
+      <div class="text-center mb-8">
+        <div class="w-14 h-14 bg-emerald-100 border border-emerald-300 rounded-full flex items-center justify-center mx-auto mb-3">
+          <i class="fa-solid fa-kaaba text-emerald-800 text-2xl"></i>
+        </div>
+        <h1 class="font-serif-title text-2xl font-bold tracking-wide text-slate-900">DHIKR REFLECTION JOURNAL</h1>
+        <p class="text-xs uppercase tracking-widest text-emerald-800 font-semibold mt-1">The Divine Sanctuary</p>
+      </div>
 
-    <input type="hidden" name="phrase" value="{{ dhikr.phrase }}">
+      <form id="signInForm" onsubmit="handleAuth(event, 'signin')" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Username or Email</label>
+          <input type="text" required id="authIdentifier" placeholder="user@domain.com" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Password</label>
+          <input type="password" required id="authPassword" placeholder="••••••••" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        </div>
+        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg text-sm tracking-wide transition shadow-md">
+          Sign In
+        </button>
+      </form>
 
-    <label>Category:</label>
+      <form id="registerForm" onsubmit="handleAuth(event, 'register')" class="space-y-4 hidden">
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Full Name</label>
+          <input type="text" id="regName" placeholder="Your Name" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Email Address</label>
+          <input type="email" id="regEmail" placeholder="user@domain.com" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Password</label>
+          <input type="password" id="regPassword" placeholder="••••••••" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        </div>
+        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg text-sm tracking-wide transition shadow-md">
+          Create Account
+        </button>
+      </form>
 
-    <select name="category">
-        <option>Gratitude</option>
-        <option>Forgiveness</option>
-        <option>Patience</option>
-        <option>Hope</option>
-        <option>Reliance</option>
-        <option>Repentance</option>
-        <option>Faith</option>
-    </select>
+      <div class="mt-6 pt-6 border-t border-slate-200 text-center space-y-3">
+        <button onclick="loginDemoUser()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2.5 rounded-lg text-xs tracking-wider uppercase transition border border-slate-300">
+          <i class="fa-solid fa-user-check mr-2 text-emerald-600"></i> Quick Demo Access
+        </button>
+        <p class="text-xs text-slate-500">
+          <span id="authToggleText">Don't have an account?</span> 
+          <button onclick="toggleAuthMode()" id="authToggleBtn" class="text-emerald-700 underline font-semibold hover:text-emerald-800 ml-1">Register now</button>
+        </p>
+      </div>
+    </div>
+  </div>
 
-    <br><br>
+  <!-- MAIN APPLICATION CONTAINER -->
+  <div id="appContainer" class="flex-1 flex flex-col hidden">
+    
+    <!-- Top Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="w-9 h-9 bg-emerald-100 border border-emerald-300 rounded-lg flex items-center justify-center">
+            <i class="fa-solid fa-moon text-emerald-700"></i>
+          </div>
+          <div>
+            <h1 class="font-serif-title font-bold text-base tracking-wide text-slate-900">DHIKR REFLECTION JOURNAL</h1>
+            <p class="text-[10px] uppercase tracking-widest text-emerald-700 font-semibold">The Divine Sanctuary</p>
+          </div>
+        </div>
 
-    <textarea
-        name="reflection"
-        placeholder="Write your reflection here">
-    </textarea>
+        <!-- Navigation Tabs -->
+        <nav class="hidden md:flex items-center space-x-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
+          <button onclick="switchMainTab('dhikr')" id="tabBtn-dhikr" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-emerald-600 text-white shadow-sm">
+            <i class="fa-solid fa-[#10B981] fa-hands-praying mr-1"></i> Dhikr Counter
+          </button>
+          <button onclick="switchMainTab('quran')" id="tabBtn-quran" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900">
+            <i class="fa-solid fa-book-quran mr-1"></i> Quranic Verses
+          </button>
+          <button onclick="switchMainTab('hadith')" id="tabBtn-hadith" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900">
+            <i class="fa-solid fa-scroll mr-1"></i> Hadith Repository
+          </button>
+          <button onclick="switchMainTab('topics')" id="tabBtn-topics" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900">
+            <i class="fa-solid fa-shapes mr-1"></i> Topic Explorer
+          </button>
+          <button onclick="switchMainTab('analytics')" id="tabBtn-analytics" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900">
+            <i class="fa-solid fa-chart-pie mr-1"></i> Statistics & Activity
+          </button>
+        </nav>
 
-    <br>
+        <!-- User Info & Logout -->
+        <div class="flex items-center space-x-3">
+          <div class="hidden sm:flex flex-col text-right">
+            <span id="userNameDisplay" class="text-xs font-bold text-slate-800">User Name</span>
+            <span id="userHandleDisplay" class="text-[10px] text-slate-500">@user</span>
+          </div>
+          <button onclick="logout()" title="Sign Out" class="w-9 h-9 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg border border-slate-300 flex items-center justify-center transition">
+            <i class="fa-solid fa-right-from-bracket text-xs"></i>
+          </button>
+        </div>
+      </div>
+    </header>
 
-    <button type="submit">
-        Save Reflection
-    </button>
+    <!-- MAIN BODY SECTION -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
 
-</form>
+      <!-- SECTION 1: DHIKR COUNTER & LOGS -->
+      <section id="view-dhikr" class="space-y-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          <!-- Dhikr Counter Widget -->
+          <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm text-center space-y-6">
+            <h3 class="font-serif-title font-bold text-lg text-slate-800">Daily Dhikr Counter</h3>
+            
+            <div class="space-y-2">
+              <label class="block text-xs font-semibold text-slate-500 uppercase">Select Dhikr Phrase</label>
+              <select id="dhikrSelect" onchange="updateDhikrDisplay()" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none">
+                <option value="SubhanAllah">سُبْحَانَ ٱللَّٰهِ (SubhanAllah)</option>
+                <option value="Alhamdulillah">ٱلْحَمْدُ لِلَّٰهِ (Alhamdulillah)</option>
+                <option value="Allahu Akbar">ٱللَّٰهُ أَكْبَرُ (Allahu Akbar)</option>
+                <option value="Astaghfirullah">أَسْتَغْفِرُ ٱللَّٰهَ (Astaghfirullah)</option>
+              </select>
+            </div>
 
-    <br>
-    <a href="/reflections">View Past Reflections</a>
+            <div class="py-6 bg-slate-50 rounded-2xl border border-slate-200">
+              <span id="dhikrCountDisplay" class="font-serif-title text-6xl font-bold text-emerald-700">0</span>
+              <p id="dhikrArabicText" class="font-arabic text-2xl text-slate-600 mt-2">سُبْحَانَ ٱللَّٰهِ</p>
+            </div>
+
+            <div class="flex items-center space-x-3">
+              <button onclick="incrementDhikr()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-xl text-lg shadow-md transition transform active:scale-95">
+                + Tap to Count
+              </button>
+              <button onclick="resetDhikr()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-4 py-4 rounded-xl text-sm transition">
+                Reset
+              </button>
+            </div>
+            
+            <button onclick="logDhikrSession()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-2.5 rounded-lg text-xs uppercase tracking-wider transition">
+              <i class="fa-solid fa-bookmark mr-2"></i> Save Session To Daily Log
+            </button>
+          </div>
+
+          <!-- Dhikr Log History -->
+          <div class="lg:col-span-2 space-y-4">
+            <h3 class="font-serif-title font-bold text-lg text-slate-800">Today's Dhikr Session Logs</h3>
+            <div id="dhikrLogList" class="space-y-3">
+              <!-- Dynamically Populated -->
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- SECTION 2: QURANIC VERSES -->
+      <section id="view-quran" class="space-y-6 hidden">
+        <div class="border-b border-slate-200 pb-3">
+          <h2 class="text-xl font-bold text-slate-800">Quranic Verses Repository</h2>
+          <p class="text-xs text-slate-500">Holy Quranic guidance with Arabic text, transliterations, and English translations.</p>
+        </div>
+        <div id="quranGrid" class="space-y-6"></div>
+      </section>
+
+      <!-- SECTION 3: HADITH REPOSITORY -->
+      <section id="view-hadith" class="space-y-6 hidden">
+        <div class="border-b border-slate-200 pb-3">
+          <h2 class="text-xl font-bold text-slate-800">Hadith Repository</h2>
+          <p class="text-xs text-slate-500">Authentic Sahih Hadiths from Sahih al-Bukhari, Sahih Muslim, and Sunan Ibn Majah.</p>
+        </div>
+        <div id="hadithGrid" class="space-y-6"></div>
+      </section>
+
+      <!-- SECTION 4: TOPIC EXPLORER (Honesty, Patience, etc.) -->
+      <section id="view-topics" class="space-y-6 hidden">
+        
+        <!-- Category Selector Pills -->
+        <div class="flex items-center space-x-2 overflow-x-auto pb-2">
+          <button onclick="selectTopic('honesty')" id="topicPill-honesty" class="know-cat-btn nav-pill-active px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2">
+            <i class="fa-solid fa-shield-halved"></i> <span>Honesty (Sidq)</span>
+          </button>
+          <button onclick="selectTopic('patience')" id="topicPill-patience" class="know-cat-btn nav-pill-inactive px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2">
+            <i class="fa-solid fa-mountain"></i> <span>Patience (Sabr)</span>
+          </button>
+          <button onclick="selectTopic('knowledge')" id="topicPill-knowledge" class="know-cat-btn nav-pill-inactive px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2">
+            <i class="fa-solid fa-graduation-cap"></i> <span>Seeking Knowledge ('Ilm)</span>
+          </button>
+          <button onclick="selectTopic('gratitude')" id="topicPill-gratitude" class="know-cat-btn nav-pill-inactive px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2">
+            <i class="fa-solid fa-hands-praying"></i> <span>Gratitude (Shukr)</span>
+          </button>
+        </div>
+
+        <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4">
+          <h3 id="topicTitle" class="font-bold text-slate-900 text-lg">Topic: Honesty (Sidq)</h3>
+          <p id="topicDescription" class="text-xs text-slate-600 mt-1">Truthfulness in speech, action, and inner character.</p>
+        </div>
+
+        <div id="topicResultsGrid" class="space-y-6"></div>
+      </section>
+
+      <!-- SECTION 5: STATISTICS & ACTIVITY -->
+      <section id="view-analytics" class="space-y-8 hidden">
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-6">
+          <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <span class="text-xs uppercase font-semibold text-slate-500">Dhikr Completed Today</span>
+            <p id="statDhikrToday" class="font-serif-title text-3xl font-bold text-emerald-700 mt-2">0</p>
+          </div>
+          <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <span class="text-xs uppercase font-semibold text-slate-500">Verses & Hadiths Read</span>
+            <p id="statVersesRead" class="font-serif-title text-3xl font-bold text-slate-900 mt-2">12</p>
+          </div>
+          <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <span class="text-xs uppercase font-semibold text-slate-500">Total Reflections</span>
+            <p id="statReflectionsCount" class="font-serif-title text-3xl font-bold text-slate-900 mt-2">0</p>
+          </div>
+          <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <span class="text-xs uppercase font-semibold text-slate-500">Active Streak</span>
+            <p id="statStreak" class="font-serif-title text-3xl font-bold text-emerald-700 mt-2">1 Day</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <h4 class="font-serif-title text-sm font-bold text-slate-800 mb-4">Weekly Reflection Trend</h4>
+            <canvas id="weeklyChart" height="200"></canvas>
+          </div>
+          <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <h4 class="font-serif-title text-sm font-bold text-slate-800 mb-4">Dhikr Distribution</h4>
+            <canvas id="dhikrChart" height="200"></canvas>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <script>
+    // DATA REPOSITORIES
+    const quranVerses = [
+      {
+        category: 'honesty',
+        type: 'QURANIC VERSE',
+        reference: 'Surah At-Tawbah (9:119)',
+        arabic: 'يَٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُوا۟ ٱتَّقُوا۟ ٱللَّهَ وَكُونُوا۟ مَعَ ٱلصَّٰدِقِينَ',
+        transliteration: 'Yā ayyuhā alladhīna āmanū ittaqū Allāha wa kūnū ma\'a aṣ-ṣādiqīn',
+        translation: '"O you who have believed, fear Allah and be with those who are true."',
+        commentary: 'Commands believers to uphold truthfulness in speech, intention, and action.'
+      },
+      {
+        category: 'patience',
+        type: 'QURANIC VERSE',
+        reference: 'Surah Al-Baqarah (2:153)',
+        arabic: 'يَٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُوا۟ ٱسْتَعِينُوا۟ بِٱلصَّبْرِ وَٱلصَّلَوٰةِ',
+        transliteration: 'Yā ayyuhā alladhīna āmanū ista\'īnū bi-aṣ-ṣabri wa aṣ-ṣalāh',
+        translation: '"O you who have believed, seek help through patience and prayer."',
+        commentary: 'Patience provides inner stability during times of trial.'
+      }
+    ];
+
+    const hadithRepository = [
+      {
+        category: 'honesty',
+        type: 'SAHIH HADITH',
+        reference: 'Sahih al-Bukhari 6094',
+        arabic: 'إِنَّ الصِّدْقَ يَهْدِي إِلَى الْبِرِّ وَإِنَّ الْبِرَّ يَهْدِي إِلَى الْجَنَّةِ',
+        transliteration: 'Inna aṣ-ṣidqa yahdī ilā al-birri wa inna al-birra yahdī ilā al-jannah',
+        translation: '"Truthfulness leads to righteousness, and righteousness leads to Paradise."',
+        commentary: 'Highlights the transformative moral power of habitual truthfulness.'
+      },
+      {
+        category: 'knowledge',
+        type: 'SAHIH HADITH',
+        reference: 'Sunan Ibn Majah 224',
+        arabic: 'طَلَبُ الْعِلْمِ فَرِيضَةٌ عَلَى كُلِّ مُسْلِمٍ',
+        transliteration: 'Ṭalabu al-\'ilmi farīḍatun \'alā kulli Muslim',
+        translation: '"Seeking knowledge is an obligation upon every Muslim."',
+        commentary: 'Encourages continuous learning and intellectual growth.'
+      }
+    ];
+
+    const topicMeta = {
+      honesty: { title: 'Topic: Honesty (Sidq)', desc: 'Truthfulness in speech, action, and inner character.' },
+      patience: { title: 'Topic: Patience (Sabr)', desc: 'Resilience and steadfastness in moments of adversity.' },
+      knowledge: { title: 'Topic: Seeking Knowledge (\'Ilm)', desc: 'Pursuing beneficial knowledge for personal and spiritual growth.' },
+      gratitude: { title: 'Topic: Gratitude (Shukr)', desc: 'Expressing continuous thanks for blessings.' }
+    };
+
+    // STATE
+    let currentUser = JSON.parse(localStorage.getItem('dhikr_user')) || null;
+    let dhikrCount = 0;
+    let totalDhikrToday = parseInt(localStorage.getItem('dhikr_today_count')) || 0;
+    let dhikrLogs = JSON.parse(localStorage.getItem('dhikr_session_logs')) || [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (currentUser) showApp();
+    });
+
+    function handleAuth(e, type) {
+      e.preventDefault();
+      const id = document.getElementById(type === 'signin' ? 'authIdentifier' : 'regEmail').value || 'User';
+      currentUser = { name: id.split('@')[0], handle: `@${id.split('@')[0]}` };
+      localStorage.setItem('dhikr_user', JSON.stringify(currentUser));
+      showApp();
+    }
+
+    function loginDemoUser() {
+      currentUser = { name: 'Demo User', handle: '@demouser' };
+      localStorage.setItem('dhikr_user', JSON.stringify(currentUser));
+      showApp();
+    }
+
+    function logout() {
+      localStorage.removeItem('dhikr_user');
+      location.reload();
+    }
+
+    function showApp() {
+      document.getElementById('authOverlay').classList.add('hidden');
+      document.getElementById('appContainer').classList.remove('hidden');
+      document.getElementById('userNameDisplay').innerText = currentUser.name;
+      document.getElementById('userHandleDisplay').innerText = currentUser.handle;
+      
+      renderQuran();
+      renderHadith();
+      selectTopic('honesty');
+      renderDhikrLogs();
+      initAnalytics();
+    }
+
+    // MAIN TAB NAVIGATION
+    function switchMainTab(tab) {
+      ['dhikr', 'quran', 'hadith', 'topics', 'analytics'].forEach(t => {
+        document.getElementById(`view-${t}`).classList.add('hidden');
+        document.getElementById(`tabBtn-${t}`).className = 'px-3 py-1.5 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900';
+      });
+
+      document.getElementById(`view-${tab}`).classList.remove('hidden');
+      document.getElementById(`tabBtn-${tab}`).className = 'px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-emerald-600 text-white shadow-sm';
+    }
+
+    // DHIKR LOGIC
+    function updateDhikrDisplay() {
+      const val = document.getElementById('dhikrSelect').value;
+      const arabicMap = {
+        'SubhanAllah': 'سُبْحَانَ ٱللَّٰهِ',
+        'Alhamdulillah': 'ٱلْحَمْدُ لِلَّٰهِ',
+        'Allahu Akbar': 'ٱللَّٰهُ أَكْبَرُ',
+        'Astaghfirullah': 'أَسْتَغْفِرُ ٱللَّٰهَ'
+      };
+      document.getElementById('dhikrArabicText').innerText = arabicMap[val] || '';
+      dhikrCount = 0;
+      document.getElementById('dhikrCountDisplay').innerText = dhikrCount;
+    }
+
+    function incrementDhikr() {
+      dhikrCount++;
+      document.getElementById('dhikrCountDisplay').innerText = dhikrCount;
+    }
+
+    function resetDhikr() {
+      dhikrCount = 0;
+      document.getElementById('dhikrCountDisplay').innerText = dhikrCount;
+    }
+
+    function logDhikrSession() {
+      if (dhikrCount === 0) return alert('Count some dhikr first!');
+      const phrase = document.getElementById('dhikrSelect').value;
+      const session = {
+        phrase: phrase,
+        count: dhikrCount,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+
+      dhikrLogs.unshift(session);
+      totalDhikrToday += dhikrCount;
+      localStorage.setItem('dhikr_today_count', totalDhikrToday);
+      localStorage.setItem('dhikr_session_logs', JSON.stringify(dhikrLogs));
+
+      resetDhikr();
+      renderDhikrLogs();
+      document.getElementById('statDhikrToday').innerText = totalDhikrToday;
+    }
+
+    function renderDhikrLogs() {
+      const list = document.getElementById('dhikrLogList');
+      list.innerHTML = '';
+
+      if (dhikrLogs.length === 0) {
+        list.innerHTML = `<div class="bg-white rounded-2xl p-6 text-center text-slate-400 text-sm border border-slate-200">No dhikr sessions logged today yet.</div>`;
+        return;
+      }
+
+      dhikrLogs.forEach(s => {
+        const item = document.createElement('div');
+        item.className = 'bg-white rounded-xl p-4 border border-slate-200 flex items-center justify-between';
+        item.innerHTML = `
+          <div>
+            <span class="font-bold text-slate-800 text-sm">${s.phrase}</span>
+            <p class="text-xs text-slate-400">${s.time}</p>
+          </div>
+          <span class="badge-dhikr font-bold text-sm px-3 py-1 rounded-lg">+${s.count} Recitations</span>
+        `;
+        list.appendChild(item);
+      });
+
+      document.getElementById('statDhikrToday').innerText = totalDhikrToday;
+    }
+
+    // RENDERING CONTENT CARDS
+    function renderQuran() {
+      const grid = document.getElementById('quranGrid');
+      grid.innerHTML = quranVerses.map(renderCardHTML).join('');
+    }
+
+    function renderHadith() {
+      const grid = document.getElementById('hadithGrid');
+      grid.innerHTML = hadithRepository.map(renderCardHTML).join('');
+    }
+
+    function selectTopic(topic) {
+      document.querySelectorAll('.know-cat-btn').forEach(b => b.className = 'know-cat-btn nav-pill-inactive px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2');
+      const active = document.getElementById(`topicPill-${topic}`);
+      if (active) active.className = 'know-cat-btn nav-pill-active px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2';
+
+      const meta = topicMeta[topic] || topicMeta['honesty'];
+      document.getElementById('topicTitle').innerText = meta.title;
+      document.getElementById('topicDescription').innerText = meta.desc;
+
+      const combined = [...quranVerses, ...hadithRepository].filter(i => i.category === topic);
+      const grid = document.getElementById('topicResultsGrid');
+      grid.innerHTML = combined.length > 0 ? combined.map(renderCardHTML).join('') : '<div class="bg-white p-6 text-center text-slate-400 rounded-xl">No entries for this topic yet.</div>';
+    }
+
+    function renderCardHTML(item) {
+      const badgeClass = item.type === 'QURANIC VERSE' ? 'badge-quran' : 'badge-hadith';
+      return `
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md ${badgeClass}">${item.type}</span>
+            <span class="text-xs text-slate-400 font-medium">${item.reference}</span>
+          </div>
+          <p class="font-arabic text-3xl leading-loose text-slate-800 text-right py-1">${item.arabic}</p>
+          <p class="text-xs text-slate-400 italic">${item.transliteration}</p>
+          <p class="text-sm text-slate-800 font-medium">${item.translation}</p>
+          <p class="text-xs text-slate-500 border-l-2 border-emerald-500 pl-3 pt-1">${item.commentary}</p>
+        </div>
+      `;
+    }
+
+    // ANALYTICS
+    function initAnalytics() {
+      const ctx1 = document.getElementById('weeklyChart').getContext('2d');
+      const ctx2 = document.getElementById('dhikrChart').getContext('2d');
+
+      new Chart(ctx1, {
+        type: 'line',
+        data: {
+          labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          datasets: [{ label: 'Reflections', data: [1, 2, 0, 3, 2, 4, 1], borderColor: '#52B788', fill: false }]
+        }
+      });
+
+      new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+          labels: ['SubhanAllah', 'Alhamdulillah', 'Allahu Akbar', 'Astaghfirullah'],
+          datasets: [{ data: [33, 33, 33, 20], backgroundColor: ['#52B788', '#2D6A4F', '#74C69D', '#D8F3DC'] }]
+        }
+      });
+    }
+  </script>
 </body>
 </html>

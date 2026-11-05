@@ -2,6 +2,8 @@
 {% block content %}
 <h1>Past Reflections</h1>
 
+<p><strong>Total Reflections:</strong> {{ total }}</p>
+
 <!-- 🔍 Search bar -->
 <form action="/reflections" method="GET">
     <input type="text" name="q" placeholder="Search reflections...">

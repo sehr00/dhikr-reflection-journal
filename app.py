@@ -40,9 +40,10 @@ def reflections():
         ]
 
     return render_template(
-        "reflections.html",
-        reflections=lines
-    )
+    "reflections.html",
+    reflections=lines,
+    total=len(lines)
+)
 
 @app.route("/reset", methods=["POST"])
 def reset():
